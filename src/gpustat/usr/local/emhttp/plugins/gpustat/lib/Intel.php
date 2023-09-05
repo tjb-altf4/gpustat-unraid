@@ -36,7 +36,7 @@ class Intel extends Main
 {
     const CMD_UTILITY = 'intel_gpu_top';
     const INVENTORY_UTILITY = 'lspci';
-    const INVENTORY_PARAM = " -Dmm | grep VGA";
+    const INVENTORY_PARAM = " -Dmm | grep -E 'Display|VGA' ";
     const INVENTORY_REGEX =
         '/VGA.+:\s+Intel\s+Corporation\s+(?P<model>.*)\s+(\[|Family|Integrated|Graphics|Controller|Series|\()/iU';
     const STATISTICS_PARAM = '-J -s 250 -d pci:slot="';
@@ -179,8 +179,10 @@ class Intel extends Main
                 if (isset($data['power']['value'])) {
                     $this->pageData['power'] = $this->roundFloat($data['power']['value'], 2) . $data['power']['unit'];
                 // Newer version of intel_gpu_top includes GPU and package power readings, just scrape GPU for now
-                } elseif (isset($data['power']['GPU'])) {
-                    $this->pageData['power'] = $this->roundFloat($data['power']['GPU'], 2) . $data['power']['unit'];
+                } else {
+                    if (isset($data['power']['Package']) && ($this->settings['DISPPWRDRWSEL'] == "MAX" || $this->settings['DISPPWRDRWSEL'] == "PACKAGE" )) $powerPackage = $this->roundFloat($data['power']['Package'], 2) ; else $powerPackage = 0 ;
+                    if (isset($data['power']['GPU']) && ($this->settings['DISPPWRDRWSEL'] == "MAX" || $this->settings['DISPPWRDRWSEL'] == "GPU" )) $powerGPU = $this->roundFloat($data['power']['GPU'], 2) ;  else $powerGPU = 0 ;
+                    $this->pageData['power'] = max($powerGPU,$powerPackage) . $data['power']['unit'] ;               
                 }
             }
             // According to the sparse documentation, rc6 is a percentage of how little the GPU is requesting power
@@ -202,6 +204,5 @@ class Intel extends Main
         } else {
             $this->pageData['error'][] = Error::get(Error::VENDOR_DATA_BAD_PARSE);
         }
-        $this->echoJson();
       }
 }
