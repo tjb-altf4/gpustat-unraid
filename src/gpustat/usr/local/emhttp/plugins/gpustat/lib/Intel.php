@@ -111,7 +111,8 @@ class Intel extends Main
     private function parseStatistics()
     {
         // JSON output from intel_gpu_top with multiple array indexes isn't properly formatted
-        $stdout = "[" . str_replace('}{', '},{', str_replace(["\n","\t"], '', $this->stdout)) . "]";
+        $stdout = trim($this->stdout, '[]');
+        $stdout = "[" . str_replace('}{', '},{', str_replace(["\n","\t"], '', $stdout)) . "]";
 
         try {
             $data = json_decode($stdout, true, 512, JSON_THROW_ON_ERROR);
@@ -151,21 +152,29 @@ class Intel extends Main
             if ($this->settings['DISP3DRENDER']) {
                 if (isset($data['engines']['Render/3D/0']['busy'])) {
                     $this->pageData['util'] = $this->pageData['3drender'] = $this->roundFloat($data['engines']['Render/3D/0']['busy']) . '%';
+                } elseif (isset($data['engines']['Render/3D']['busy'])) {
+                    $this->pageData['util'] = $this->pageData['3drender'] = $this->roundFloat($data['engines']['Render/3D']['busy']) . '%';
                 }
             }
             if ($this->settings['DISPBLITTER']) {
                 if (isset($data['engines']['Blitter/0']['busy'])) {
                     $this->pageData['blitter'] = $this->roundFloat($data['engines']['Blitter/0']['busy']) . '%';
+                } elseif (isset($data['engines']['Blitter']['busy'])) {
+                    $this->pageData['blitter'] = $this->roundFloat($data['engines']['Blitter']['busy']) . '%';
                 }
             }
             if ($this->settings['DISPVIDEO']) {
                 if (isset($data['engines']['Video/0']['busy'])) {
                     $this->pageData['video'] = $this->roundFloat($data['engines']['Video/0']['busy']) . '%';
+                } elseif (isset($data['engines']['Video']['busy'])) {
+                    $this->pageData['video'] = $this->roundFloat($data['engines']['Video']['busy']) . '%';
                 }
             }
             if ($this->settings['DISPVIDENH']) {
                 if (isset($data['engines']['VideoEnhance/0']['busy'])) {
                     $this->pageData['videnh'] = $this->roundFloat($data['engines']['VideoEnhance/0']['busy']) . '%';
+                } elseif (isset($data['engines']['VideoEnhance']['busy'])) {
+                    $this->pageData['videnh'] = $this->roundFloat($data['engines']['VideoEnhance']['busy']) . '%';
                 }
             }
             if ($this->settings['DISPPCIUTIL']) {
