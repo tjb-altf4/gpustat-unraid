@@ -208,7 +208,11 @@ class Nvidia extends Main
         // Some product names are too long, like TITAN Xp COLLECTORS EDITION and need to be shortened for fitment
         if (strlen($name) > 20 && str_word_count($name) > 2) {
             $words = explode(" ", $name);
-            $this->pageData['name'] = sprintf("%0s %1s", $words[0], $words[1]);
+            if ($words[0] == "GeForce")  {
+                array_shift($words) ;  
+                $words2 = implode(" ", $words) ;
+                if (strlen($words2) <= 20) $this->pageData['name'] = $words2;
+                } else  $this->pageData['name'] = sprintf("%0s %1s", $words[0], $words[1]);
         } else {
             $this->pageData['name'] = $name;
         }
