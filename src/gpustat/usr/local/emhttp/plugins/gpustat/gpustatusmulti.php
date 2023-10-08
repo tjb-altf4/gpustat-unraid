@@ -57,6 +57,7 @@ $array=json_decode($_GET['gpus'],true) ;
     foreach ($array as $gpu) {
         $gpustat_cfg["VENDOR"] = $gpu['vendor'] ;
         $gpustat_cfg["GPUID"] = $gpu['guid'] ;
+        $gpustat_cfg["PCIID"] = $gpu['id'] ;
 
     switch ($gpu['vendor']) {
         case 'amd':

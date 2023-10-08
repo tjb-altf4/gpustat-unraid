@@ -22,63 +22,80 @@
   SOFTWARE.
 */
 
+
+function toggleVFIO(vfio,panel) {
+    if (vfio) {
+      $('.vfio_inuse'+panel).show();
+      $('.vfio_notinuse'+panel).hide();
+    } else {
+      $('.vfio_inuse'+panel).hide();
+      $('.vfio_notinuse'+panel).show();
+    }
+  }
+
 const gpustat_statusm = (input) => {
     $.getJSON('/plugins/gpustat/gpustatusmulti.php?gpus='+JSON.stringify(input), (data2) => {
         if (data2) {
         $.each(data2, function (key2, data) {
-             panel = data["panel"] ;
-            switch (data["vendor"]) {
-                case 'NVIDIA':
-                    // Nvidia Slider Bars
-                    $('.gpu-memclockbar'+panel).removeAttr('style').css('width', data["memclock"] / data["memclockmax"] * 100 + "%");
-                    $('.gpu-gpuclockbar'+panel ).removeAttr('style').css('width', data["clock"] / data["clockmax"] * 100 + "%");
-                    $('.gpu-powerbar'+panel ).removeAttr('style').css('width', parseInt(data["power"].replace("W","") / data["powermax"] * 100) + "%");
-                    $('.gpu-rxutilbar'+panel).removeAttr('style').css('width', parseInt(data["rxutil"] / data["pciemax"] * 100) + "%");
-                    $('.gpu-txutilbar'+panel).removeAttr('style').css('width', parseInt(data["txutil"] / data["pciemax"] * 100) + "%");
+            panel = data["panel"] ;
+            if (!data['vfio']) {
+                toggleVFIO(false,panel) ;
+                switch (data["vendor"]) {
+                    case 'NVIDIA':
+                        // Nvidia Slider Bars
+                        $('.gpu-memclockbar'+panel).removeAttr('style').css('width', data["memclock"] / data["memclockmax"] * 100 + "%");
+                        $('.gpu-gpuclockbar'+panel ).removeAttr('style').css('width', data["clock"] / data["clockmax"] * 100 + "%");
+                        $('.gpu-powerbar'+panel ).removeAttr('style').css('width', parseInt(data["power"].replace("W","") / data["powermax"] * 100) + "%");
+                        $('.gpu-rxutilbar'+panel).removeAttr('style').css('width', parseInt(data["rxutil"] / data["pciemax"] * 100) + "%");
+                        $('.gpu-txutilbar'+panel).removeAttr('style').css('width', parseInt(data["txutil"] / data["pciemax"] * 100) + "%");
 
-                    let nvidiabars = ['util', 'memutil', 'encutil', 'decutil', 'fan'];
-                    nvidiabars.forEach(function (metric) {
-                        $('.gpu-'+metric+'bar'+panel).removeAttr('style').css('width', data[metric]);
-                    });
-
-                    if (data["appssupp"]) {
-                        data["appssupp"].forEach(function (app) {
-                            if (data[app + "using"]) {
-                                $('.gpu-img-span-'+app+panel).css('display', "inline");
-                                $('#gpu-'+app+panel).attr('title', "Count: " + data[app+"count"] + " Memory: " + data[app+"mem"] + "MB");
-                            } else {
-                                $('.gpu-img-span-'+app+panel).css('display', "none");
-                                $('#gpu-'+app+panel).attr('title', "");
-                            }
+                        let nvidiabars = ['util', 'memutil', 'encutil', 'decutil', 'fan'];
+                        nvidiabars.forEach(function (metric) {
+                            $('.gpu-'+metric+'bar'+panel).removeAttr('style').css('width', data[metric]);
                         });
-                    }
-                    break;
-                case 'Intel':
-                    // Intel Slider Bars
-                    let intelbars = ['3drender', 'blitter', 'video', 'videnh', 'powerutil'];
-                    intelbars.forEach(function (metric) {
-                        $('.gpu-'+metric+'bar'+panel).removeAttr('style').css('width', data[metric]);
-                    });
-                    break;
-                case 'AMD':
-                    $('.gpu-powerbar'+panel).removeAttr('style').css('width', parseInt(data["power"] / data["powermax"] * 100) + "%");
-                    $('.gpu-fanbar'+panel).removeAttr('style').css('width', parseInt(data["fan"] / data["fanmax"] * 100) + "%");
-                    let amdbars = [
-                        'util', 'event', 'vertex',
-                        'texture', 'shaderexp', 'sequencer',
-                        'shaderinter', 'scancon', 'primassem',
-                        'depthblk', 'colorblk', 'memutil',
-                        'gfxtrans', 'memclockutil', 'clockutil'
-                    ];
-                    amdbars.forEach(function (metric) {
-                        $('.gpu-'+metric+'bar'+panel).removeAttr('style').css('width', data[metric]);
-                    });
-                    break;
-            }
 
-            $.each(data, function (key, data) {
+                        if (data["appssupp"]) {
+                            data["appssupp"].forEach(function (app) {
+                                if (data[app + "using"]) {
+                                    $('.gpu-img-span-'+app+panel).css('display', "inline");
+                                    $('#gpu-'+app+panel).attr('title', "Count: " + data[app+"count"] + " Memory: " + data[app+"mem"] + "MB");
+                                } else {
+                                    $('.gpu-img-span-'+app+panel).css('display', "none");
+                                    $('#gpu-'+app+panel).attr('title', "");
+                                }
+                            });
+                        }
+                        break;
+                    case 'Intel':
+                        // Intel Slider Bars
+                        let intelbars = ['3drender', 'blitter', 'video', 'videnh', 'powerutil'];
+                        intelbars.forEach(function (metric) {
+                            $('.gpu-'+metric+'bar'+panel).removeAttr('style').css('width', data[metric]);
+                        });
+                        break;
+                    case 'AMD':
+                        $('.gpu-powerbar'+panel).removeAttr('style').css('width', parseInt(data["power"] / data["powermax"] * 100) + "%");
+                        $('.gpu-fanbar'+panel).removeAttr('style').css('width', parseInt(data["fan"] / data["fanmax"] * 100) + "%");
+                        let amdbars = [
+                            'util', 'event', 'vertex',
+                            'texture', 'shaderexp', 'sequencer',
+                            'shaderinter', 'scancon', 'primassem',
+                            'depthblk', 'colorblk', 'memutil',
+                            'gfxtrans', 'memclockutil', 'clockutil'
+                        ];
+                        amdbars.forEach(function (metric) {
+                            $('.gpu-'+metric+'bar'+panel).removeAttr('style').css('width', data[metric]);
+                        });
+                        break;
+                }
+
+                $.each(data, function (key, data) {
                     $('.gpu-'+key+panel).html(data);
-                })
+                    })
+
+            } else {
+                toggleVFIO(true,panel) ;
+            }
             })
         }
     });

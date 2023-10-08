@@ -119,6 +119,19 @@ class Main
     }
 
     /**
+     * Checks if card is bound to VFIO
+     *
+     * @param string $pciid
+     * @return bool $vfio
+     */
+    protected function checkVFIO(string $pciid)
+    {
+        $files = scandir("/sys/bus/pci/drivers/vfio-pci/") ;
+        $vfio = in_array($pciid, $files) ;
+        return $vfio ;
+    }
+
+    /**
      * Runs a command in shell and stores STDOUT in class variable
      *
      * @param string $command

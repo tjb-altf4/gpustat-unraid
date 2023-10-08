@@ -56,6 +56,8 @@ class AMD extends Main
         'gtt'   => ['gfxtrans', 'transused'],
         'mclk'  => ['memclockutil', 'memclock', 'clocks'],
         'sclk'  => ['clockutil', 'clock', 'clocks'],
+        'uvd'   => ['uvd'],
+        'vce0'  => ['vce'],
     ];
 
     const TEMP_UTILITY = 'sensors';
@@ -118,6 +120,7 @@ class AMD extends Main
                 if (!empty($this->stdout) && strlen($this->stdout) > 0) {
                     foreach(explode(PHP_EOL,$this->stdout) AS $vga) {
                         preg_match_all('/"([^"]*)"|(\S+)/', $vga, $matches);
+                        if (!isset( $matches[0][0])) continue ;
                         $id = str_replace('"', '', $matches[0][0]) ;
                         $vendor = str_replace('"', '',$matches[0][2]) ;
                         $model = str_replace('"', '',$matches[0][3]) ;
@@ -142,17 +145,35 @@ class AMD extends Main
      */
     public function getStatistics()
     {
-        if ($this->cmdexists) {
-            //Command invokes radeontop in STDOUT mode with an update limit of half a second @ 120 samples per second
-            $command = sprintf("%0s -b %1s", self::CMD_UTILITY, $this->settings['GPUID']);
-            $this->runCommand($command, self::STATISTICS_PARAM, false);
-            if (!empty($this->stdout) && strlen($this->stdout) > 0) {
-                $this->parseStatistics();
-            } else {
-                $this->pageData['error'][] += Error::get(Error::VENDOR_DATA_NOT_RETURNED);
+        if (!$this->checkVFIO("0000:".$this->settings['PCIID']))
+        {
+            if ($this->cmdexists) {
+                //Command invokes radeontop in STDOUT mode with an update limit of half a second @ 120 samples per second
+                $command = sprintf("%0s -b %1s", self::CMD_UTILITY, $this->settings['GPUID']);
+                $this->runCommand($command, self::STATISTICS_PARAM, false);
+                if (!empty($this->stdout) && strlen($this->stdout) > 0) {
+                    $this->parseStatistics();
+                } else {
+                    $this->pageData['error'][] += Error::get(Error::VENDOR_DATA_NOT_RETURNED);
+                }
+                $this->pageData["vfio"] = false ;
+                $this->pageData["vfiochk"] = $this->checkVFIO($this->settings['PCIID']) ;
+                $this->pageData["vfiochkid"] = "0000:".$this->settings['PCIID'] ;
             }
-            return json_encode($this->pageData) ;
+        } else {
+            $this->pageData["vfio"] = true ;
+            $this->pageData["vendor"] = "AMD" ;
+            $this->pageData["vfiochk"] = "0000:".$this->checkVFIO($this->settings['PCIID']) ;
+            $this->pageData["vfiochkid"] = $this->settings['PCIID'] ;
+            $gpus = $this->getInventory() ;
+            if ($gpus) {
+                if (isset($gpus[$this->settings['GPUID']])) {
+                    $this->pageData['name'] = $gpus[$this->settings['GPUID']]["model"] ;
+                }
+            }
+        
         }
+        return json_encode($this->pageData) ;  
     }
 
     /**

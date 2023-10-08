@@ -68,6 +68,7 @@ class Intel extends Main
                 if (!empty($this->stdout) && strlen($this->stdout) > 0) {
                     foreach(explode(PHP_EOL,$this->stdout) AS $vga) {
                         preg_match_all('/"([^"]*)"|(\S+)/', $vga, $matches);
+                        if (!isset( $matches[0][0])) continue ;
                         $id = str_replace('"', '', $matches[0][0]) ;
                         $vendor = str_replace('"', '',$matches[0][2]) ;
                         $model = str_replace('"', '',$matches[0][3]) ;
@@ -91,18 +92,38 @@ class Intel extends Main
      */
     public function getStatistics()
     {
-        if ($this->cmdexists) {
-            //Command invokes intel_gpu_top in JSON output mode with an update rate of 5 seconds
-            $command = self::STATISTICS_WRAPPER . ES . self::CMD_UTILITY;
-                        //Command invokes radeontop in STDOUT mode with an update limit of half a second @ 120 samples per second
-            $this->runCommand($command, self::STATISTICS_PARAM. $this->settings['GPUID'].'"', false);
-            if (!empty($this->stdout) && strlen($this->stdout) > 0) {
-                $this->parseStatistics();
+        if (!$this->checkVFIO($this->settings['GPUID']))
+        {
+
+            if ($this->cmdexists) {
+                //Command invokes intel_gpu_top in JSON output mode with an update rate of 5 seconds
+                $command = self::STATISTICS_WRAPPER . ES . self::CMD_UTILITY;
+                            //Command invokes radeontop in STDOUT mode with an update limit of half a second @ 120 samples per second
+                $this->runCommand($command, self::STATISTICS_PARAM. $this->settings['GPUID'].'"', false);
+                if (!empty($this->stdout) && strlen($this->stdout) > 0) {
+                    $this->parseStatistics();
+                } else {
+                    $this->pageData['error'][] = Error::get(Error::VENDOR_DATA_NOT_RETURNED);
+                }
+                $this->pageData["vfio"] = false ;
+                $this->pageData["vfiochk"] = $this->checkVFIO($this->settings['GPUID']) ;
+                $this->pageData["vfiochkid"] = $this->settings['GPUID'] ;
+                }
             } else {
-                $this->pageData['error'][] = Error::get(Error::VENDOR_DATA_NOT_RETURNED);
+                $this->pageData["vfio"] = true ;
+                $this->pageData["vendor"] = "Intel" ;
+                $this->pageData["vfiochk"] = $this->checkVFIO($this->settings['GPUID']) ;
+                $this->pageData["vfiochkid"] = $this->settings['GPUID'] ;
+                $gpus = $this->getInventory() ;
+                if ($gpus) {
+                    if (isset($gpus[$this->settings['GPUID']])) {
+                        $this->pageData['name'] = $gpus[$this->settings['GPUID']]["model"] ;
+                    }
+                }
             }
-            return json_encode($this->pageData) ;
-        }
+                return json_encode($this->pageData) ;
+            
+        
     }
 
     /**
@@ -191,7 +212,8 @@ class Intel extends Main
                 } else {
                     if (isset($data['power']['Package']) && ($this->settings['DISPPWRDRWSEL'] == "MAX" || $this->settings['DISPPWRDRWSEL'] == "PACKAGE" )) $powerPackage = $this->roundFloat($data['power']['Package'], 2) ; else $powerPackage = 0 ;
                     if (isset($data['power']['GPU']) && ($this->settings['DISPPWRDRWSEL'] == "MAX" || $this->settings['DISPPWRDRWSEL'] == "GPU" )) $powerGPU = $this->roundFloat($data['power']['GPU'], 2) ;  else $powerGPU = 0 ;
-                    $this->pageData['power'] = max($powerGPU,$powerPackage) . $data['power']['unit'] ;               
+                    if (isset($data['power']['unit'])) $powerunit = $data['power']['unit'] ; else $powerunit = "" ;
+                    $this->pageData['power'] = max($powerGPU,$powerPackage) . $powerunit ;               
                 }
             }
             // According to the sparse documentation, rc6 is a percentage of how little the GPU is requesting power

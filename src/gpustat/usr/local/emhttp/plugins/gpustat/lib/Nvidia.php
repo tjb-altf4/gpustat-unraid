@@ -299,16 +299,34 @@ class Nvidia extends Main
      */
     public function getStatistics()
     {
-        if ($this->cmdexists) {
-            //Command invokes nvidia-smi in query all mode with XML return
-            $this->stdout = shell_exec(self::CMD_UTILITY . ES . sprintf(self::STATISTICS_PARAM, $this->settings['GPUID']));
-            if (!empty($this->stdout) && strlen($this->stdout) > 0) {
-                $this->parseStatistics();
+        if (!$this->checkVFIO("0000:".$this->settings['PCIID'])) {
+            if ($this->cmdexists) {
+                //Command invokes nvidia-smi in query all mode with XML return
+                $this->stdout = shell_exec(self::CMD_UTILITY . ES . sprintf(self::STATISTICS_PARAM, $this->settings['GPUID']));
+                if (!empty($this->stdout) && strlen($this->stdout) > 0) {
+                    $this->parseStatistics();
+                } else {
+                    $this->pageData['error'][] = Error::get(Error::VENDOR_DATA_NOT_RETURNED);
+                }
             } else {
-                $this->pageData['error'][] = Error::get(Error::VENDOR_DATA_NOT_RETURNED);
+                $this->pageData['error'][] = Error::get(Error::VENDOR_UTILITY_NOT_FOUND);
             }
+            $this->pageData["vfio"] = false ;
+            $this->pageData["vfiochk"] = $this->checkVFIO($this->settings['PCIID']) ;
+            $this->pageData["vfiochkid"] = "0000:".$this->settings['PCIID'] ;
+            
         } else {
-            $this->pageData['error'][] = Error::get(Error::VENDOR_UTILITY_NOT_FOUND);
+            $this->pageData["vfio"] = true ;
+            $this->pageData["vendor"] = "Nvidia" ;
+            $this->pageData["vfiochk"] = "0000:".$this->checkVFIO($this->settings['PCIID']) ;
+            $this->pageData["vfiochkid"] = $this->settings['PCIID'] ;
+            $gpus = $this->getInventory() ;
+            if ($gpus) {
+                if (isset($gpus[$this->settings['GPUID']])) {
+                    $this->pageData['name'] = $gpus[$this->settings['GPUID']]["model"] ;
+                }
+            }
+
         }
         return json_encode($this->pageData) ;
     }
