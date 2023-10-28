@@ -159,6 +159,10 @@ class AMD extends Main
                 $this->pageData["vfio"] = false ;
                 $this->pageData["vfiochk"] = $this->checkVFIO($this->settings['PCIID']) ;
                 $this->pageData["vfiochkid"] = "0000:".$this->settings['PCIID'] ;
+            } else {
+                $this->pageData['error'][] = Error::get(Error::VENDOR_UTILITY_NOT_FOUND);
+                $this->pageData["vendor"] = "AMD" ;
+                $this->pageData["name"] = $this->settings['GPUID'] ;
             }
         } else {
             $this->pageData["vfio"] = true ;

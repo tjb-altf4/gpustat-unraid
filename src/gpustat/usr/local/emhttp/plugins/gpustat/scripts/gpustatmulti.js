@@ -27,6 +27,7 @@ function toggleVFIO(vfio,panel) {
     if (vfio) {
       $('.vfio_inuse'+panel).show();
       $('.vfio_notinuse'+panel).hide();
+      $('.vfio_status'+panel).text(_("GPU not available bound to VFIO or inuse in a VM."));
     } else {
       $('.vfio_inuse'+panel).hide();
       $('.vfio_notinuse'+panel).show();
@@ -90,14 +91,31 @@ const gpustat_statusm = (input) => {
                 }
 
                 $.each(data, function (key, data) {
+                    if (key == "error") {
+                        toggleVFIO(true,panel) ;
+                        var error_text = data[0]["message"] ;
+                        $('.vfio_status'+panel).text(_(error_text));
+                    }
                     $('.gpu-'+key+panel).html(data);
                     })
 
+
             } else {
                 toggleVFIO(true,panel) ;
+                $('.gpu-name'+panel).html(data["name"]);
+                $('.gpu-vendor'+panel).html(data["vendor"]);
             }
+            var hidden = $.cookie('hidden_content');
+            if (hidden) {
+                hidden = hidden.split(';');
+                if (hidden.includes($("#tblGPUDash" + panel).attr('title').md5())) 
+                $("#tblGPUDash" + panel ).mixedView(0);
+            }
+   
             })
-        }
+         }
+   
+
     });
 };
 

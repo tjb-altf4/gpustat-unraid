@@ -108,22 +108,24 @@ class Intel extends Main
                 $this->pageData["vfio"] = false ;
                 $this->pageData["vfiochk"] = $this->checkVFIO($this->settings['GPUID']) ;
                 $this->pageData["vfiochkid"] = $this->settings['GPUID'] ;
-                }
             } else {
-                $this->pageData["vfio"] = true ;
+                $this->pageData['error'][] = Error::get(Error::VENDOR_UTILITY_NOT_FOUND);
                 $this->pageData["vendor"] = "Intel" ;
-                $this->pageData["vfiochk"] = $this->checkVFIO($this->settings['GPUID']) ;
-                $this->pageData["vfiochkid"] = $this->settings['GPUID'] ;
-                $gpus = $this->getInventory() ;
-                if ($gpus) {
-                    if (isset($gpus[$this->settings['GPUID']])) {
-                        $this->pageData['name'] = $gpus[$this->settings['GPUID']]["model"] ;
-                    }
+                $this->pageData["name"] = $this->settings['GPUID'] ;
+            }
+        } else {
+            $this->pageData["vfio"] = true ;
+            $this->pageData["vendor"] = "Intel" ;
+            $this->pageData["vfiochk"] = $this->checkVFIO($this->settings['GPUID']) ;
+            $this->pageData["vfiochkid"] = $this->settings['GPUID'] ;
+            $gpus = $this->getInventory() ;
+            if ($gpus) {
+                if (isset($gpus[$this->settings['GPUID']])) {
+                    $this->pageData['name'] = $gpus[$this->settings['GPUID']]["model"] ;
                 }
             }
-                return json_encode($this->pageData) ;
-            
-        
+        }
+        return json_encode($this->pageData) ;    
     }
 
     /**

@@ -47,6 +47,7 @@ if (isset($gpustat_inventory) && $gpustat_inventory) {
     $gpustat_cfg['inventory'] = true;
     // Settings page looks for $gpustat_data specifically -- inventory all supported GPU types
     $gpustat_data = array_merge((new Nvidia($gpustat_cfg))->getInventorym(), (new Intel($gpustat_cfg))->getInventory(), (new AMD($gpustat_cfg))->getInventorym());
+    file_put_contents("/tmp/gpuinv",json_encode($gpustat_data)) ;
 } else {
 
 

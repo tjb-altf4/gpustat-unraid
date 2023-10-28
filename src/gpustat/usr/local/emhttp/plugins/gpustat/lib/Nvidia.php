@@ -38,6 +38,12 @@ class Nvidia extends Main
     const INVENTORY_PARAM = '-L';
     const INVENTORY_PARM_PCI = "-q -x -g %s 2>&1 | grep 'gpu id'";
     const INVENTORY_REGEX = '/GPU\s(?P<id>\d):\s(?P<model>.*)\s\(UUID:\s(?P<guid>GPU-[0-9a-f-]+)\)/i';
+    const PCI_INVENTORY_UTILITY = 'lspci';
+    const PCI_INVENTORY_PARAM = '| grep VGA';
+    const PCI_INVENTORY_PARAMm = " -Dmm | grep VGA";
+    const PCD_INVENTORY_REGEX =
+        '/^(?P<busid>[0-9a-f]{2}).*\[AMD(\/ATI)?\]\s+(?P<model>.+)\s+(\[(?P<product>.+)\]|\()/imU';
+
     const STATISTICS_PARAM = '-q -x -g %s 2>&1';
     const SUPPORTED_APPS = [ // Order here is important because some apps use the same binaries -- order should be more specific to less
         'plex'        => ['Plex Transcoder'],
@@ -189,9 +195,49 @@ class Nvidia extends Main
                 $gpu['vendor'] = 'nvidia' ;
                 $result2[$pci] = $gpu ; 
             }
+            if (empty($result)) $result2=$this->getPCIInventory() ;
         }
 
         return $result2;
+    }
+
+        /**
+     * Retrieves Intel inventory using lspci and returns an array
+     *
+     * @return array
+     */
+    public function getPCIInventory(): array
+    {
+        $result = [];
+
+        if ($this->cmdexists) {
+            $this->checkCommand(self::PCI_INVENTORY_UTILITY, false);
+            if ($this->cmdexists) {
+                $this->runCommand(self::PCI_INVENTORY_UTILITY, self::PCI_INVENTORY_PARAMm, false);
+                if (!empty($this->stdout) && strlen($this->stdout) > 0) {
+                    foreach(explode(PHP_EOL,$this->stdout) AS $vga) {
+                        preg_match_all('/"([^"]*)"|(\S+)/', $vga, $matches);
+                        if (!isset( $matches[0][0])) continue ;
+                        $id = str_replace('"', '', $matches[0][0]) ;
+                        $vendor = str_replace('"', '',$matches[0][2]) ;
+                        $model = str_replace('"', '',$matches[0][3]) ;
+                        $modelstart = strpos($model,'[') ;
+                        $model = substr($model,$modelstart,strlen($model)- $modelstart) ;
+                        $model= str_replace(array("Quadro","GeForce","[","]"),"",$model) ;
+
+                        if ($vendor != "NVIDIA Corporation") continue ;
+                        $result[$id] = [
+                            'id' => substr($id,5) ,
+                            'model' => $model ,
+                            'vendor' => 'nvidia',
+                            'guid' => $id
+                        ];
+
+                     }
+                 }
+            }
+        }
+        return $result;
     }
 
     /**
@@ -306,10 +352,19 @@ class Nvidia extends Main
                 if (!empty($this->stdout) && strlen($this->stdout) > 0) {
                     $this->parseStatistics();
                 } else {
+                    
                     $this->pageData['error'][] = Error::get(Error::VENDOR_DATA_NOT_RETURNED);
                 }
             } else {
                 $this->pageData['error'][] = Error::get(Error::VENDOR_UTILITY_NOT_FOUND);
+                $this->pageData["vendor"] = "Nvidia" ;
+                $gpus = $this->getPCIInventory() ;
+                if ($gpus) {
+                    if (isset($gpus[$this->settings['PCIID']])) {
+                        $this->pageData['name'] = $gpus[$this->settings['PCIID']]["model"] ;
+                    }
+                }
+                $this->pageData["name"] = $this->settings['GPUID'] ;
             }
             $this->pageData["vfio"] = false ;
             $this->pageData["vfiochk"] = $this->checkVFIO($this->settings['PCIID']) ;
@@ -320,7 +375,7 @@ class Nvidia extends Main
             $this->pageData["vendor"] = "Nvidia" ;
             $this->pageData["vfiochk"] = "0000:".$this->checkVFIO($this->settings['PCIID']) ;
             $this->pageData["vfiochkid"] = $this->settings['PCIID'] ;
-            $gpus = $this->getInventory() ;
+            $gpus = $this->getPCIInventory() ;
             if ($gpus) {
                 if (isset($gpus[$this->settings['GPUID']])) {
                     $this->pageData['name'] = $gpus[$this->settings['GPUID']]["model"] ;
