@@ -380,7 +380,7 @@ class Nvidia extends Main
         } else {
             $this->pageData["vfio"] = true ;
             $this->pageData["vendor"] = "Nvidia" ;
-            $this->pageData["vfiochk"] = "0000:".$this->checkVFIO("0000:".$this->settings['PCIID']) ;
+            $this->pageData["vfiochk"] = $this->checkVFIO("0000:".$this->settings['PCIID']) ;
             $this->pageData["vfiochkid"] = $this->settings['PCIID'] ;
             $gpus = $this->getPCIInventory() ;
             if ($gpus) {
