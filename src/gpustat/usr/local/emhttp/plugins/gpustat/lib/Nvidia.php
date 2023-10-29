@@ -56,6 +56,8 @@ class Nvidia extends Main
         'ersatztv'    => ['ffmpeg'],
         'fileflows'   => ['ffmpeg'],
         'frigate'     => ['ffmpeg'],
+        'Threadfin'   => ['ffmpeg'],
+        'codeproject' => ['python3.8'],
         'deepstack'   => ['python3'],
         'nsfminer'    => ['nsfminer'],
         'shinobipro'  => ['shinobi'],
@@ -89,12 +91,17 @@ class Nvidia extends Main
                         if (isset($process->pid)) {
                             $pid_info = $this->getFullCommand((int) $process->pid);
                             if (!empty($pid_info) && strlen($pid_info) > 0) {
-                                if ($command === 'python3') {
+                                if ($command === 'python3.8') {
+                                    // CodeProject doesn't have any signifier in the full command output
+                                    if (strpos($pid_info, '/ObjectDetectionYolo/detect_adapter.py') === false) {
+                                        continue 2;
+                                    }
+                                } elseif ($command === 'python3') {
                                     // Deepstack doesn't have any signifier in the full command output
                                     if (strpos($pid_info, '/app/intelligencelayer/shared') === false) {
                                         continue 2;
                                     }
-                                } elseif (stripos($pid_info, $app) === false) {
+                                } elseif (stripos($pid_info, strtolower($app)) === false) {
                                     // Try to match the app name in the parent process
                                     $ppid_info = $this->getParentCommand((int) $process->pid);
                                     if (stripos($ppid_info, $app) === false) {

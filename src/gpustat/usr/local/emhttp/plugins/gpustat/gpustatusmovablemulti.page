@@ -60,7 +60,7 @@ $gpu_nv = $gpu_intel = $gpu_amd = $gpu_unknown = false;
 
 $apps = [
     'plex', 'jellyfin', 'handbrake', 'emby', 'tdarr', 'unmanic', 'dizquetv', 'ersatztv',
-    'fileflows', 'frigate', 'deepstack', 'nsfminer', 'shinobipro', 'foldinghome',
+    'fileflows', 'frigate', 'deepstack', 'nsfminer', 'shinobipro', 'foldinghome','Threadfin', 'codeproject',
 ];
 
 $i= $j =$k = 1;  
@@ -114,7 +114,7 @@ foreach ($multigpus as $id=>$gpu) {
 function GPULayout($count,$vendor,$gpustat_cfg) {
     $apps = [
     'plex', 'jellyfin', 'handbrake', 'emby', 'tdarr', 'unmanic', 'dizquetv', 'ersatztv',
-    'fileflows', 'frigate', 'deepstack', 'nsfminer', 'shinobipro', 'foldinghome',
+    'fileflows', 'frigate', 'deepstack', 'nsfminer', 'shinobipro', 'foldinghome','Threadfin', 'codeproject',
 ];
 $gpu_nv = $gpu_intel = $gpu_amd = $gpu_unknown = false;
     switch ($vendor) {
