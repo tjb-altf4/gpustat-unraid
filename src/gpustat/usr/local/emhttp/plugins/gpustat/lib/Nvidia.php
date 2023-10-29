@@ -374,13 +374,13 @@ class Nvidia extends Main
                 $this->pageData["name"] = $this->settings['GPUID'] ;
             }
             $this->pageData["vfio"] = false ;
-            $this->pageData["vfiochk"] = $this->checkVFIO($this->settings['PCIID']) ;
+            $this->pageData["vfiochk"] = $this->checkVFIO("0000:".$this->settings['PCIID']) ;
             $this->pageData["vfiochkid"] = "0000:".$this->settings['PCIID'] ;
             
         } else {
             $this->pageData["vfio"] = true ;
             $this->pageData["vendor"] = "Nvidia" ;
-            $this->pageData["vfiochk"] = "0000:".$this->checkVFIO($this->settings['PCIID']) ;
+            $this->pageData["vfiochk"] = "0000:".$this->checkVFIO("0000:".$this->settings['PCIID']) ;
             $this->pageData["vfiochkid"] = $this->settings['PCIID'] ;
             $gpus = $this->getPCIInventory() ;
             if ($gpus) {
