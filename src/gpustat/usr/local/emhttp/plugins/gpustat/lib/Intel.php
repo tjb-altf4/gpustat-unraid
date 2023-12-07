@@ -40,7 +40,7 @@ class Intel extends Main
     const INVENTORY_REGEX =
         '/VGA.+:\s+Intel\s+Corporation\s+(?P<model>.*)\s+(\[|Family|Integrated|Graphics|Controller|Series|\()/iU';
     const STATISTICS_PARAM = '-J -s 250 -d pci:slot="';
-    const STATISTICS_WRAPPER = 'timeout -k .500 .600';
+    const STATISTICS_WRAPPER = 'timeout -k ';
 
     /**
      * Intel constructor.
@@ -97,7 +97,8 @@ class Intel extends Main
 
             if ($this->cmdexists) {
                 //Command invokes intel_gpu_top in JSON output mode with an update rate of 5 seconds
-                $command = self::STATISTICS_WRAPPER . ES . self::CMD_UTILITY;
+                if (!isset($this->settings['IGTTIMER'])) $this->settings['IGTTIMER'] = ".500 .600";
+                $command = self::STATISTICS_WRAPPER . ES . $this->settings['IGTTIMER'] . ES . self::CMD_UTILITY;
                             //Command invokes radeontop in STDOUT mode with an update limit of half a second @ 120 samples per second
                 $this->runCommand($command, self::STATISTICS_PARAM. $this->settings['GPUID'].'"', false);
                 if (!empty($this->stdout) && strlen($this->stdout) > 0) {
