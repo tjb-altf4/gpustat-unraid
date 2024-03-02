@@ -39,7 +39,7 @@ class Intel extends Main
     const INVENTORY_PARAM = " -Dmm | grep -E 'Display|VGA' ";
     const INVENTORY_REGEX =
         '/VGA.+:\s+Intel\s+Corporation\s+(?P<model>.*)\s+(\[|Family|Integrated|Graphics|Controller|Series|\()/iU';
-    const STATISTICS_PARAM = '-J -s 250 -d pci:slot="';
+    const STATISTICS_PARAM = '-J -s 1000 -d pci:slot="';
     const STATISTICS_WRAPPER = 'timeout -k ';
 
     /**
@@ -97,10 +97,11 @@ class Intel extends Main
 
             if ($this->cmdexists) {
                 //Command invokes intel_gpu_top in JSON output mode with an update rate of 5 seconds
-                if (!isset($this->settings['IGTTIMER'])) $this->settings['IGTTIMER'] = ".500 .600";
+                #if (!isset($this->settings['IGTTIMER'])) $this->settings['IGTTIMER'] = ".500 1.500";
+                $this->settings['IGTTIMER'] = ".500 1.500";
                 $command = self::STATISTICS_WRAPPER . ES . $this->settings['IGTTIMER'] . ES . self::CMD_UTILITY;
                             //Command invokes radeontop in STDOUT mode with an update limit of half a second @ 120 samples per second
-                $this->runCommand($command, self::STATISTICS_PARAM. $this->settings['GPUID'].'"', false);
+                $this->runCommand($command, self::STATISTICS_PARAM. $this->settings['GPUID'].'" | awk \'/^{/ {block=""; start=1} start {block=block $0 "\n"} /}$/ {start=0; endBlock=block} END {print endBlock "}}"}\'', false);
                 if (!empty($this->stdout) && strlen($this->stdout) > 0) {
                     $this->parseStatistics();
                 } else {
@@ -147,12 +148,12 @@ class Intel extends Main
 
         // Need to make sure we have at least two array indexes to take the second one
         $count = count($data);
-        if ($count < 2) {
+        if ($count < 1) {
             $this->pageData['error'][] = Error::get(Error::VENDOR_DATA_NOT_ENOUGH, "Count: $count");
         }
 
         // intel_gpu_top will never show utilization counters on the first sample so we need the second position
-        $data = $data[1];
+        $data = $data[0];
         unset($stdout, $this->stdout);
 
         if (!empty($data)) {

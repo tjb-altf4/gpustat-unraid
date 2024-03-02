@@ -168,7 +168,7 @@ UI Automatic Refresh / Interval (Milliseconds):
     <?=mk_option($gpustat_cfg['UIREFRESH'], "0", "No");?>
     <?=mk_option($gpustat_cfg['UIREFRESH'], "1", "Yes");?>
   </select>
-  <input type="text" name="UIREFRESHINT" class="narrow" maxlength="5" value="<?=$gpustat_cfg['UIREFRESHINT'];?>" placeholder="1000">
+  <input type="number" name="UIREFRESHINT" class="narrow" min="2000" maxlength="5" value="<?=$gpustat_cfg['UIREFRESHINT'];?>" placeholder="5000">
 
 <h2><b>Enabled Pollers</b></h2>
 
@@ -275,8 +275,6 @@ Power Draw Selection:
     <?=mk_option($gpustat_cfg['DISPPWRDRWSEL'], "MAX", "Max of GPU or Package");?>
   </select>  
 
-Intel_gpu_top command timeout:
-: <input type="text" name="IGTTIMER" class="narrow" maxlength="10" value="<?=$gpustat_cfg['IGTTIMER'];?>" placeholder=".500 .600">
 
 <h4><b>AMD Specific</b></h4>
 
