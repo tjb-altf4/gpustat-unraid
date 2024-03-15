@@ -62,6 +62,7 @@ class Nvidia extends Main
         'nsfminer'    => ['nsfminer'],
         'shinobipro'  => ['shinobi'],
         'foldinghome' => ['FahCore'],
+        'compreface'  => ['uwsgi'],
     ];
 
 
