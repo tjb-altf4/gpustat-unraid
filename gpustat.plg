@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "gpustat">
 <!ENTITY author    "b3rs3rk">
-<!ENTITY version   "2024.06.21">
+<!ENTITY version   "2024.08.26">
 <!ENTITY launch    "Settings/GPUStatSettings">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/SimonFair/&name;-unraid/master">
 <!ENTITY pluginURL "&gitURL;/&name;.plg">
@@ -27,7 +27,7 @@
   MIT License
 
   Copyright (c) 2020-2022 b3rs3rk
-  Copyright (c) 2023-2023 SimonFair
+  Copyright (c) 2023-2024 SimonFair
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -49,6 +49,11 @@
 -->
 
 <CHANGES>
+###2024-08-26
+
+- Fix timer abs values
+- add Ollama app for nvidia GPU - PR from  nwithan8.
+
 ###2024-06-21
 
 - Fixes PHP errors in AMD lib.
