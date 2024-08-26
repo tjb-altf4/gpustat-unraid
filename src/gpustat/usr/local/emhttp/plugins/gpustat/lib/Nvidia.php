@@ -66,6 +66,7 @@ class Nvidia extends Main
         'ollama'     => ['ollama_llama_server'],
         'immich'     => ['/config/machine-learning/cuda'],
         'localai'     => ['localai'],
+        'invokeai'    => ['invokeai'],
     ];
 
 
