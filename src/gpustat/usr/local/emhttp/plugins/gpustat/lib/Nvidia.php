@@ -63,6 +63,8 @@ class Nvidia extends Main
         'shinobipro'  => ['shinobi'],
         'foldinghome' => ['FahCore'],
         'compreface'  => ['uwsgi'],
+        'ollama'     => ['ollama_llama_server'],
+        'immich'     => ['/config/machine-learning/cuda'],
         'localai'     => ['localai'],
     ];
 
