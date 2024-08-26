@@ -64,6 +64,7 @@ class Nvidia extends Main
         'foldinghome' => ['FahCore'],
         'compreface'  => ['uwsgi'],
         'ollama'     => ['ollama_llama_server'],
+        'immich'     => ['/config/machine-learning/cuda'],
     ];
 
 
