@@ -68,7 +68,7 @@ class Nvidia extends Main
         'localai'     => ['localai'],
         'invokeai'    => ['invokeai'],
         'chia'        => ['chia'],
-        'mmx'         => ['mmx'],
+        'mmx'         => ['mmx_node'],
         'subspace'    => ['subspace'],
     ];
 
