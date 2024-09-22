@@ -2,9 +2,9 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "gpustat">
 <!ENTITY author    "b3rs3rk">
-<!ENTITY version   "2024.09.23a">
+<!ENTITY version   "2024.09.23b">
 <!ENTITY launch    "Settings/GPUStatSettings">
-<!ENTITY gitURL    "https://raw.githubusercontent.com/tjb-altf4/&name;-unraid/feature/intel-support">
+<!ENTITY gitURL    "https://raw.githubusercontent.com/tjb-altf4/&name;-unraid/tree/feature/intel-support">
 <!ENTITY pluginURL "&gitURL;/&name;.plg">
 <!ENTITY pkgURL    "&gitURL;/pkg">
 <!ENTITY plgPATH   "/boot/config/plugins/&name;">
