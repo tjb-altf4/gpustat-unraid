@@ -61,7 +61,7 @@ $gpu_nv = $gpu_intel = $gpu_amd = $gpu_unknown = false;
 $apps = [
     'plex', 'jellyfin', 'handbrake', 'emby', 'tdarr', 'unmanic', 'dizquetv', 'ersatztv',
     'fileflows', 'frigate', 'deepstack', 'nsfminer', 'shinobipro', 'foldinghome','threadfin', 'codeproject', 'compreface',
-    'ollama',
+    'ollama','immich','localai', 'invokeai', 'chia', 'mmx', 'subspace'
 ];
 
 $i= $j =$k = 1;  
